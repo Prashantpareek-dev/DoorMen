@@ -1,0 +1,1828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DoorMan - Door-to-Door Logistics & Parcel Transfer Platform</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* Loading Screen */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+        
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 20px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Navbar Styles */
+        .navbar {
+            transition: all 0.3s ease;
+        }
+        
+        .navbar.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Hero Background Animation */
+        .hero-bg {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-bg::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 35px,
+                rgba(255, 255, 255, 0.05) 35px,
+                rgba(255, 255, 255, 0.05) 70px
+            );
+            animation: move 20s linear infinite;
+        }
+        
+        @keyframes move {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+        
+        /* Floating Animation */
+        .float {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        /* Card Hover Effect */
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Button Styles */
+        .btn-primary {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(249, 115, 22, 0.4);
+        }
+        
+        .btn-secondary {
+            border: 2px solid white;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: white;
+            color: #1e40af;
+        }
+        
+        /* Swiper Customization */
+        .swiper-button-next,
+        .swiper-button-prev {
+            color: #3b82f6;
+            background: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .swiper-button-next:after,
+        .swiper-button-prev:after {
+            font-size: 20px;
+        }
+        
+        .swiper-pagination-bullet-active {
+            background: #3b82f6;
+        }
+        
+        /* Accordion */
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .accordion-content.active {
+            max-height: 500px;
+        }
+        
+        /* Smooth Scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Mobile Menu */
+        .mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .mobile-menu.active {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loader"></div>
+        <div class="loading-text">DoorMan</div>
+        <p class="text-white text-sm mt-2">Loading your logistics solution...</p>
+    </div>
+    
+    <!-- Navbar -->
+    <nav class="navbar fixed top-0 left-0 right-0 z-50 bg-transparent">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <i class="fas fa-truck text-3xl text-blue-600 mr-2"></i>
+                    <span class="text-2xl font-bold text-white navbar-logo">DoorMan</span>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#services" class="text-white hover:text-blue-200 transition navbar-link">Services</a>
+                    <a href="#vehicles" class="text-white hover:text-blue-200 transition navbar-link">Vehicles</a>
+                    <a href="#how-it-works" class="text-white hover:text-blue-200 transition navbar-link">How It Works</a>
+                    <a href="#testimonials" class="text-white hover:text-blue-200 transition navbar-link">Reviews</a>
+                    <a href="#contact" class="text-white hover:text-blue-200 transition navbar-link">Contact</a>
+                    <button class="btn-primary text-white px-6 py-2 rounded-full font-semibold">
+                        Book Now
+                    </button>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <button class="md:hidden text-white" id="mobile-menu-btn">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Mobile Menu -->
+    <div class="mobile-menu fixed top-0 right-0 h-full w-64 bg-white shadow-2xl z-50 md:hidden">
+        <div class="p-6">
+            <button class="mb-8 text-gray-600" id="close-menu">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+            <div class="flex flex-col space-y-6">
+                <a href="#services" class="text-gray-700 hover:text-blue-600 font-medium mobile-link">Services</a>
+                <a href="#vehicles" class="text-gray-700 hover:text-blue-600 font-medium mobile-link">Vehicles</a>
+                <a href="#how-it-works" class="text-gray-700 hover:text-blue-600 font-medium mobile-link">How It Works</a>
+                <a href="#testimonials" class="text-gray-700 hover:text-blue-600 font-medium mobile-link">Reviews</a>
+                <a href="#contact" class="text-gray-700 hover:text-blue-600 font-medium mobile-link">Contact</a>
+                <button class="btn-primary text-white px-6 py-3 rounded-full font-semibold">
+                    Book Now
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Hero Section -->
+    <section class="hero-bg pt-24 pb-20 px-4 relative">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-12 items-center relative z-10">
+                <!-- Left Content -->
+                <div class="text-white">
+                    <h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+                        Move Anything.<br/>
+                        Anytime.<br/>
+                        <span class="text-orange-400">Anywhere.</span>
+                    </h1>
+                    <p class="text-xl mb-4 text-blue-100">
+                        Door-to-Door Logistics & Parcel Transfer Platform
+                    </p>
+                    <p class="text-lg mb-8 text-blue-100">
+                        From documents to heavy cargo — DoorMan connects users with <strong>verified drivers and the right vehicle</strong>, instantly.
+                    </p>
+                    
+                    <div class="flex items-center space-x-4 mb-8">
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-400 mr-2"></i>
+                            <span>Fast Booking</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-400 mr-2"></i>
+                            <span>Real-time Tracking</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-400 mr-2"></i>
+                            <span>Verified Drivers</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button class="btn-primary text-white px-8 py-4 rounded-full font-semibold text-lg">
+                            <i class="fas fa-box mr-2"></i>Book a Vehicle
+                        </button>
+                        <button class="btn-secondary text-white px-8 py-4 rounded-full font-semibold text-lg">
+                            <i class="fas fa-user-plus mr-2"></i>Register as Driver
+                        </button>
+                    </div>
+                    
+                    <p class="mt-6 text-sm text-blue-100">
+                        From <strong>two-wheelers to 25-ton trucks</strong>, DoorMan moves it all.
+                    </p>
+                    
+                    <!-- Hero Stats -->
+                    <div class="grid grid-cols-3 gap-6 mt-10 pt-10 border-t border-blue-400 border-opacity-30">
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-white mb-1">10K+</div>
+                            <div class="text-sm text-blue-100">Active Users</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-white mb-1">5K+</div>
+                            <div class="text-sm text-blue-100">Verified Drivers</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-white mb-1">50K+</div>
+                            <div class="text-sm text-blue-100">Deliveries</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Illustration -->
+                <div class="hidden md:block float">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?w=600&h=600&fit=crop" alt="Logistics Truck" class="rounded-lg shadow-2xl">
+                        <div class="absolute -bottom-6 -left-6 w-32 h-32 bg-orange-500 rounded-full opacity-20 blur-3xl"></div>
+                        <div class="absolute -top-6 -right-6 w-32 h-32 bg-blue-500 rounded-full opacity-20 blur-3xl"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Decorative Elements -->
+        <div class="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-gray-50 to-transparent"></div>
+    </section>
+    
+    <!-- Trusted By Section -->
+    <section class="py-12 px-4 bg-white border-b border-gray-100">
+        <div class="max-w-7xl mx-auto">
+            <p class="text-center text-gray-500 text-sm font-semibold mb-8">TRUSTED BY BUSINESSES ACROSS INDIA</p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 items-center opacity-60">
+                <div class="flex justify-center">
+                    <img src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=200&h=80&fit=crop" alt="Business" class="h-12 object-contain grayscale hover:grayscale-0 transition">
+                </div>
+                <div class="flex justify-center">
+                    <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=200&h=80&fit=crop" alt="Business" class="h-12 object-contain grayscale hover:grayscale-0 transition">
+                </div>
+                <div class="flex justify-center">
+                    <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=200&h=80&fit=crop" alt="Business" class="h-12 object-contain grayscale hover:grayscale-0 transition">
+                </div>
+                <div class="flex justify-center">
+                    <img src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=200&h=80&fit=crop" alt="Business" class="h-12 object-contain grayscale hover:grayscale-0 transition">
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Who is DoorMan For Section -->
+    <section id="services" class="py-20 px-4 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                    Who is <span class="text-blue-600">DoorMan</span> For?
+                </h2>
+                <p class="text-xl text-gray-600">
+                    Built for everyone in the logistics ecosystem
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 lg:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="card-hover bg-gradient-to-br from-blue-50 to-white p-8 rounded-2xl border border-blue-100">
+                    <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-user text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Individuals</h3>
+                    <p class="text-gray-600">Sending parcels, documents, or personal items quickly and safely</p>
+                </div>
+                
+                <!-- Card 2 -->
+                <div class="card-hover bg-gradient-to-br from-blue-50 to-white p-8 rounded-2xl border border-blue-100">
+                    <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-store text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Small Businesses</h3>
+                    <p class="text-gray-600">Shop owners needing reliable daily transport solutions</p>
+                </div>
+                
+                <!-- Card 3 -->
+                <div class="card-hover bg-gradient-to-br from-blue-50 to-white p-8 rounded-2xl border border-blue-100">
+                    <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-shopping-cart text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">E-commerce Sellers</h3>
+                    <p class="text-gray-600">Fast fulfillment for online orders and returns</p>
+                </div>
+                
+                <!-- Card 4 -->
+                <div class="card-hover bg-gradient-to-br from-blue-50 to-white p-8 rounded-2xl border border-blue-100">
+                    <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-industry text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Manufacturers</h3>
+                    <p class="text-gray-600">Heavy cargo and bulk material transport</p>
+                </div>
+                
+                <!-- Card 5 -->
+                <div class="card-hover bg-gradient-to-br from-blue-50 to-white p-8 rounded-2xl border border-blue-100">
+                    <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-truck-moving text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Drivers</h3>
+                    <p class="text-gray-600">Looking for steady work and fair earnings</p>
+                </div>
+                
+                <!-- Card 6 -->
+                <div class="card-hover bg-gradient-to-br from-blue-50 to-white p-8 rounded-2xl border border-blue-100">
+                    <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-warehouse text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Fleet Owners</h3>
+                    <p class="text-gray-600">Expanding digitally with better utilization</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Vehicles Section -->
+    <section id="vehicles" class="py-20 px-4 bg-gradient-to-b from-gray-50 to-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                    Vehicles We <span class="text-blue-600">Provide</span>
+                </h2>
+                <p class="text-xl text-gray-600">
+                    Choose the right vehicle for your delivery
+                </p>
+            </div>
+            
+            <!-- Swiper Carousel -->
+            <div class="swiper vehicleSwiper">
+                <div class="swiper-wrapper pb-12">
+                    <!-- Two-Wheeler -->
+                    <div class="swiper-slide">
+                        <div class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover">
+                            <div class="bg-blue-600 p-8 text-center">
+                                <i class="fas fa-motorcycle text-white text-6xl mb-4"></i>
+                                <h3 class="text-2xl font-bold text-white">Two-Wheeler</h3>
+                            </div>
+                            <div class="p-8">
+                                <img src="https://images.unsplash.com/photo-1558981285-6f0c94958bb6?w=400&h=300&fit=crop" alt="Motorcycle" class="w-full h-48 object-cover rounded-lg mb-4">
+                                <ul class="space-y-3">
+                                    <li class="flex items-center text-gray-700">
+                                        <i class="fas fa-check text-green-500 mr-3"></i>
+                                        Documents
+                                    </li>
+                                    <li class="flex items-center text-gray-700">
+                                        <i class="fas fa-check text-green-500 mr-3"></i>
+                                        Small parcels
+                                    </li>
+                                    <li class="flex items-center text-gray-700">
+                                        <i class="fas fa-check text-green-500 mr-3"></i>
+                                        Urgent local delivery
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Three-Wheeler -->
+                    <div class="swiper-slide">
+                        <div class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover">
+                            <div class="bg-blue-600 p-8 text-center">
+                                <i class="fas fa-shuttle-van text-white text-6xl mb-4"></i>
+                                <h3 class="text-2xl font-bold text-white">Three-Wheeler</h3>
+                            </div>
+                            <div class="p-8">
+                                <img src="https://images.unsplash.com/photo-1625937286074-9ca519d5d9df?w=400&h=300&fit=crop" alt="Auto Rickshaw" class="w-full h-48 object-cover rounded-lg mb-4">
+                                <ul class="space-y-3">
+                                    <li class="flex items-center text-gray-700">
+                                        <i class="fas fa-check text-green-500 mr-3"></i>
+                                        Medium packages
+                                    </li>
+                                    <li class="flex items-center text-gray-700">
+                                        <i class="fas fa-check text-green-500 mr-3"></i>
+                                        Shop goods
+                                    </li>
+                                    <li class="flex items-center text-gray-700">
+                                        <i class="fas fa-check text-green-500 mr-3"></i>
+                                        Local business transport
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Mini Pickup -->
+                    <div class="swiper-slide">
+                        <div class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover">
+                            <div class="bg-blue-600 p-8 text-center">
+                                <i class="fas fa-truck-pickup text-white text-6xl mb-4"></i>
+                                <h3 class="text-2xl font-bold text-white">Mini Pickup</h3>
+                            </div>
+                            <div class="p-8">
+                                <img src="https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=400&h=300&fit=crop" alt="Pickup Truck" class="w-full h-48 object-cover rounded-lg mb-4">
+                                <ul class="space-y-3">
+                                    <li class="flex items-center text-gray-700">
+                                        <i class="fas fa-check text-green-500 mr-3"></i>
+                                        Household items
+                                    </li>
+                                    <li class="flex items-center text-gray-700">
+                                        <i class="fas fa-check text-green-500 mr-3"></i>
+                                        Small commercial loads
+                                    </li>
+                                    <li class="flex items-center text-gray-700">
+                                        <i class="fas fa-check text-green-500 mr-3"></i>
+                                        Furniture delivery
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 10 Ton Truck -->
+                    <div class="swiper-slide">
+                        <div class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover">
+                            <div class="bg-blue-600 p-8 text-center">
+                                <i class="fas fa-truck text-white text-6xl mb-4"></i>
+                                <h3 class="text-2xl font-bold text-white">10 Ton Truck</h3>
+                            </div>
+                            <div class="p-8">
+                                <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=400&h=300&fit=crop" alt="10 Ton Truck" class="w-full h-48 object-cover rounded-lg mb-4">
+                                <ul class="space-y-3">
+                                    <li class="flex items-center text-gray-700">
+                                        <i class="fas fa-check text-green-500 mr-3"></i>
+                                        Medium cargo
+                                    </li>
+                                    <li class="flex items-center text-gray-700">
+                                        <i class="fas fa-check text-green-500 mr-3"></i>
+                                        Business supplies
+                                    </li>
+                                    <li class="flex items-center text-gray-700">
+                                        <i class="fas fa-check text-green-500 mr-3"></i>
+                                        Inter-city transport
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 15 Ton Truck -->
+                    <div class="swiper-slide">
+                        <div class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover">
+                            <div class="bg-blue-600 p-8 text-center">
+                                <i class="fas fa-truck-loading text-white text-6xl mb-4"></i>
+                                <h3 class="text-2xl font-bold text-white">15 Ton Truck</h3>
+                            </div>
+                            <div class="p-8">
+                                <img src="https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=400&h=300&fit=crop" alt="15 Ton Truck" class="w-full h-48 object-cover rounded-lg mb-4">
+                                <ul class="space-y-3">
+                                    <li class="flex items-center text-gray-700">
+                                        <i class="fas fa-check text-green-500 mr-3"></i>
+                                        Large cargo
+                                    </li>
+                                    <li class="flex items-center text-gray-700">
+                                        <i class="fas fa-check text-green-500 mr-3"></i>
+                                        Industrial goods
+                                    </li>
+                                    <li class="flex items-center text-gray-700">
+                                        <i class="fas fa-check text-green-500 mr-3"></i>
+                                        Bulk materials
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 25 Ton Truck -->
+                    <div class="swiper-slide">
+                        <div class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover">
+                            <div class="bg-blue-600 p-8 text-center">
+                                <i class="fas fa-truck-monster text-white text-6xl mb-4"></i>
+                                <h3 class="text-2xl font-bold text-white">25 Ton Truck</h3>
+                            </div>
+                            <div class="p-8">
+                                <img src="https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?w=400&h=300&fit=crop" alt="25 Ton Truck" class="w-full h-48 object-cover rounded-lg mb-4">
+                                <ul class="space-y-3">
+                                    <li class="flex items-center text-gray-700">
+                                        <i class="fas fa-check text-green-500 mr-3"></i>
+                                        Heavy cargo
+                                    </li>
+                                    <li class="flex items-center text-gray-700">
+                                        <i class="fas fa-check text-green-500 mr-3"></i>
+                                        Construction materials
+                                    </li>
+                                    <li class="flex items-center text-gray-700">
+                                        <i class="fas fa-check text-green-500 mr-3"></i>
+                                        Long-distance freight
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="swiper-button-next"></div>
+                <div class="swiper-button-prev"></div>
+                <div class="swiper-pagination"></div>
+            </div>
+            
+            <div class="text-center mt-8">
+                <p class="text-xl text-gray-600 font-semibold">
+                    👉 Pay only for the vehicle you need.
+                </p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Problem Section -->
+    <section class="py-20 px-4 bg-gray-900 text-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <!-- Left Content -->
+                <div>
+                    <h2 class="text-4xl md:text-5xl font-bold mb-8">
+                        The Problem with <span class="text-red-400">Traditional Transport</span>
+                    </h2>
+                    
+                    <div class="space-y-6">
+                        <div class="flex items-start">
+                            <div class="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                                <i class="fas fa-times text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold mb-2">Finding drivers is difficult</h3>
+                                <p class="text-gray-300">Relying on phone calls and personal contacts</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                                <i class="fas fa-times text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold mb-2">No fixed pricing</h3>
+                                <p class="text-gray-300">Unpredictable costs and last-minute negotiations</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                                <i class="fas fa-times text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold mb-2">Delays & miscommunication</h3>
+                                <p class="text-gray-300">No real-time updates or coordination</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                                <i class="fas fa-times text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold mb-2">No tracking</h3>
+                                <p class="text-gray-300">You never know where your goods are</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                                <i class="fas fa-times text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold mb-2">Middlemen increase cost</h3>
+                                <p class="text-gray-300">Agents and brokers add unnecessary expenses</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Image -->
+                <div class="hidden md:block">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&h=600&fit=crop" alt="Traditional Transport Problems" class="rounded-lg shadow-2xl">
+                        <!-- Overlay decorative elements -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent rounded-lg"></div>
+                        <div class="absolute bottom-6 left-6 right-6 bg-red-500 bg-opacity-90 backdrop-blur-sm p-4 rounded-lg">
+                            <div class="flex items-center text-white">
+                                <i class="fas fa-exclamation-triangle text-2xl mr-3"></i>
+                                <div>
+                                    <div class="font-bold">Old System Issues</div>
+                                    <div class="text-sm opacity-90">No tracking, delays, high costs</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-12">
+                <p class="text-2xl font-bold text-orange-400">
+                    👉 DoorMan removes all these problems with one platform.
+                </p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Solution Section -->
+    <section class="py-20 px-4 bg-gradient-to-br from-blue-50 to-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                    Our Solution – <span class="text-blue-600">Smart Logistics System</span>
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    DoorMan is a technology-powered logistics service where users book vehicles instantly, drivers are verified, pricing is transparent, and delivery is tracked live.
+                </p>
+                <p class="text-lg text-gray-500 mt-4 font-semibold">
+                    Just like Uber — but for parcels and freight.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="text-center card-hover bg-white p-8 rounded-2xl shadow-lg">
+                    <div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-bolt text-white text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Instant Booking</h3>
+                    <p class="text-gray-600">Book any vehicle in seconds through our app or web platform</p>
+                </div>
+                
+                <div class="text-center card-hover bg-white p-8 rounded-2xl shadow-lg">
+                    <div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-shield-alt text-white text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Verified Drivers</h3>
+                    <p class="text-gray-600">All drivers are KYC verified and background checked</p>
+                </div>
+                
+                <div class="text-center card-hover bg-white p-8 rounded-2xl shadow-lg">
+                    <div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-dollar-sign text-white text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Transparent Pricing</h3>
+                    <p class="text-gray-600">Know the exact cost upfront with no hidden charges</p>
+                </div>
+                
+                <div class="text-center card-hover bg-white p-8 rounded-2xl shadow-lg">
+                    <div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-map-marked-alt text-white text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Live Tracking</h3>
+                    <p class="text-gray-600">Track your delivery in real-time from pickup to drop-off</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- App Preview Section -->
+    <section class="py-20 px-4 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 text-white overflow-hidden">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <!-- Left Content -->
+                <div>
+                    <div class="inline-block bg-blue-700 px-4 py-2 rounded-full text-sm font-semibold mb-6">
+                        <i class="fas fa-mobile-alt mr-2"></i>Available on Mobile & Web
+                    </div>
+                    <h2 class="text-4xl md:text-5xl font-bold mb-6">
+                        Track Everything in <span class="text-orange-400">Real-Time</span>
+                    </h2>
+                    <p class="text-xl text-blue-100 mb-8">
+                        Experience seamless logistics with our powerful mobile app. Book, track, and manage all your deliveries from anywhere.
+                    </p>
+                    
+                    <div class="space-y-4 mb-8">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-blue-700 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-map-marked-alt text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-lg">Live GPS Tracking</h4>
+                                <p class="text-blue-200 text-sm">Know exactly where your goods are, anytime</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-blue-700 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-bell text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-lg">Instant Notifications</h4>
+                                <p class="text-blue-200 text-sm">Get updates at every delivery milestone</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-blue-700 rounded-lg flex items-center justify-center mr-4">
+                                <i class="fas fa-history text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-lg">Delivery History</h4>
+                                <p class="text-blue-200 text-sm">Access complete records of all shipments</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-4">
+                        <button class="bg-black text-white px-6 py-3 rounded-lg font-semibold flex items-center hover:scale-105 transition">
+                            <i class="fab fa-google-play text-xl mr-2"></i>
+                            <div class="text-left">
+                                <div class="text-xs">Get it on</div>
+                                <div class="text-sm">Google Play</div>
+                            </div>
+                        </button>
+                        <button class="bg-black text-white px-6 py-3 rounded-lg font-semibold flex items-center hover:scale-105 transition">
+                            <i class="fab fa-apple text-xl mr-2"></i>
+                            <div class="text-left">
+                                <div class="text-xs">Download on</div>
+                                <div class="text-sm">App Store</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Right Phone Mockup -->
+                <div class="hidden md:block relative">
+                    <div class="relative z-10">
+                        <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400&h=800&fit=crop" alt="App Preview" class="rounded-3xl shadow-2xl mx-auto">
+                        <div class="absolute inset-0 bg-gradient-to-t from-blue-900 via-transparent to-transparent rounded-3xl"></div>
+                    </div>
+                    <!-- Floating elements -->
+                    <div class="absolute top-10 -right-10 w-32 h-32 bg-orange-500 rounded-full opacity-20 blur-3xl animate-pulse"></div>
+                    <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-blue-500 rounded-full opacity-20 blur-3xl animate-pulse"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Verified Drivers Section -->
+    <section class="py-20 px-4 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                    <span class="text-blue-600">Verified</span> & Authorized Drivers
+                </h2>
+                <p class="text-xl text-gray-600">
+                    Your goods are handled by professionals
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-5 gap-8">
+                <div class="text-center">
+                    <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-id-card text-green-600 text-3xl"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-900 mb-2">Driver KYC Verified</h3>
+                    <p class="text-sm text-gray-600">Complete identity verification</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-file-alt text-green-600 text-3xl"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-900 mb-2">Documents Checked</h3>
+                    <p class="text-sm text-gray-600">Valid license & vehicle papers</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-medal text-green-600 text-3xl"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-900 mb-2">Experience-Based</h3>
+                    <p class="text-sm text-gray-600">Assigned by expertise</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-star text-green-600 text-3xl"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-900 mb-2">Ratings & Feedback</h3>
+                    <p class="text-sm text-gray-600">Transparent review system</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-phone text-green-600 text-3xl"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-900 mb-2">Direct Communication</h3>
+                    <p class="text-sm text-gray-600">Contact driver directly</p>
+                </div>
+            </div>
+            
+            <div class="text-center mt-12">
+                <p class="text-2xl font-bold text-gray-900">
+                    No unknown drivers. <span class="text-blue-600">No risk.</span>
+                </p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Employment Section -->
+    <section class="py-20 px-4 bg-gradient-to-br from-blue-600 to-blue-800 text-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4">
+                    Employment & Driver <span class="text-orange-400">Opportunity</span>
+                </h2>
+                <p class="text-xl text-blue-100">
+                    DoorMan creates real income opportunities
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-12">
+                <!-- For Drivers -->
+                <div class="bg-white text-gray-900 rounded-2xl p-10 shadow-2xl">
+                    <div class="flex items-center mb-6">
+                        <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mr-4">
+                            <i class="fas fa-user-tie text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-3xl font-bold">For Drivers</h3>
+                    </div>
+                    
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 text-xl mr-3 mt-1"></i>
+                            <span class="text-lg">Two-wheeler, three-wheeler & truck drivers welcome</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 text-xl mr-3 mt-1"></i>
+                            <span class="text-lg">Regular bookings through our platform</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 text-xl mr-3 mt-1"></i>
+                            <span class="text-lg">Fair earnings without middlemen</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 text-xl mr-3 mt-1"></i>
+                            <span class="text-lg">No brokers or commission trap</span>
+                        </li>
+                    </ul>
+                    
+                    <button class="btn-primary text-white px-8 py-4 rounded-full font-semibold text-lg mt-8 w-full">
+                        Register as Driver
+                    </button>
+                </div>
+                
+                <!-- For Fleet Owners -->
+                <div class="bg-white text-gray-900 rounded-2xl p-10 shadow-2xl">
+                    <div class="flex items-center mb-6">
+                        <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mr-4">
+                            <i class="fas fa-building text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-3xl font-bold">For Fleet Owners</h3>
+                    </div>
+                    
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 text-xl mr-3 mt-1"></i>
+                            <span class="text-lg">Add vehicles easily to our platform</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 text-xl mr-3 mt-1"></i>
+                            <span class="text-lg">Better utilization of your fleet</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 text-xl mr-3 mt-1"></i>
+                            <span class="text-lg">Digital bookings increase efficiency</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 text-xl mr-3 mt-1"></i>
+                            <span class="text-lg">Scalable growth opportunities</span>
+                        </li>
+                    </ul>
+                    
+                    <button class="btn-primary text-white px-8 py-4 rounded-full font-semibold text-lg mt-8 w-full">
+                        Partner With Us
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-20 px-4 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                    How <span class="text-blue-600">DoorMan</span> Works
+                </h2>
+                <p class="text-xl text-gray-600">
+                    Simple. Fast. Reliable.
+                </p>
+            </div>
+            
+            <div class="relative">
+                <!-- Timeline Line -->
+                <div class="hidden md:block absolute top-0 bottom-0 left-1/2 w-1 bg-blue-200 transform -translate-x-1/2"></div>
+                
+                <!-- Steps -->
+                <div class="space-y-12">
+                    <!-- Step 1 -->
+                    <div class="relative flex items-center">
+                        <div class="md:w-1/2 md:pr-12 text-right">
+                            <div class="bg-gradient-to-br from-blue-50 to-white p-8 rounded-2xl shadow-lg inline-block">
+                                <h3 class="text-2xl font-bold text-gray-900 mb-3">1. Book a Vehicle</h3>
+                                <p class="text-gray-600">Select your vehicle type and enter pickup & delivery details</p>
+                            </div>
+                        </div>
+                        <div class="absolute left-1/2 transform -translate-x-1/2 w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-xl z-10">
+                            1
+                        </div>
+                        <div class="hidden md:block md:w-1/2"></div>
+                    </div>
+                    
+                    <!-- Step 2 -->
+                    <div class="relative flex items-center">
+                        <div class="hidden md:block md:w-1/2"></div>
+                        <div class="absolute left-1/2 transform -translate-x-1/2 w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-xl z-10">
+                            2
+                        </div>
+                        <div class="md:w-1/2 md:pl-12">
+                            <div class="bg-gradient-to-br from-blue-50 to-white p-8 rounded-2xl shadow-lg inline-block">
+                                <h3 class="text-2xl font-bold text-gray-900 mb-3">2. Driver Assigned</h3>
+                                <p class="text-gray-600">Nearest verified driver is instantly assigned to your booking</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 3 -->
+                    <div class="relative flex items-center">
+                        <div class="md:w-1/2 md:pr-12 text-right">
+                            <div class="bg-gradient-to-br from-blue-50 to-white p-8 rounded-2xl shadow-lg inline-block">
+                                <h3 class="text-2xl font-bold text-gray-900 mb-3">3. Safe Pickup</h3>
+                                <p class="text-gray-600">Driver collects your goods with proper handling and care</p>
+                            </div>
+                        </div>
+                        <div class="absolute left-1/2 transform -translate-x-1/2 w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-xl z-10">
+                            3
+                        </div>
+                        <div class="hidden md:block md:w-1/2"></div>
+                    </div>
+                    
+                    <!-- Step 4 -->
+                    <div class="relative flex items-center">
+                        <div class="hidden md:block md:w-1/2"></div>
+                        <div class="absolute left-1/2 transform -translate-x-1/2 w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-xl z-10">
+                            4
+                        </div>
+                        <div class="md:w-1/2 md:pl-12">
+                            <div class="bg-gradient-to-br from-blue-50 to-white p-8 rounded-2xl shadow-lg inline-block">
+                                <h3 class="text-2xl font-bold text-gray-900 mb-3">4. Live Tracking</h3>
+                                <p class="text-gray-600">Monitor your delivery in real-time during transit</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 5 -->
+                    <div class="relative flex items-center">
+                        <div class="md:w-1/2 md:pr-12 text-right">
+                            <div class="bg-gradient-to-br from-blue-50 to-white p-8 rounded-2xl shadow-lg inline-block">
+                                <h3 class="text-2xl font-bold text-gray-900 mb-3">5. Secure Delivery</h3>
+                                <p class="text-gray-600">Your goods delivered safely to the receiver</p>
+                            </div>
+                        </div>
+                        <div class="absolute left-1/2 transform -translate-x-1/2 w-16 h-16 bg-green-600 rounded-full flex items-center justify-center text-white text-2xl shadow-xl z-10">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="hidden md:block md:w-1/2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Image Gallery Section -->
+    <section class="py-20 px-4 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                    DoorMan in <span class="text-blue-600">Action</span>
+                </h2>
+                <p class="text-xl text-gray-600">
+                    See our fleet and delivery process
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-4 gap-4">
+                <div class="col-span-2 row-span-2">
+                    <div class="relative h-full overflow-hidden rounded-2xl group">
+                        <img src="https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&h=800&fit=crop" alt="Delivery Truck" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
+                        <div class="absolute bottom-6 left-6 text-white">
+                            <h3 class="text-2xl font-bold mb-2">Heavy Cargo Fleet</h3>
+                            <p class="text-sm">10-25 ton capacity trucks</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="relative overflow-hidden rounded-2xl group">
+                    <img src="https://images.unsplash.com/photo-1558981285-6f0c94958bb6?w=400&h=400&fit=crop" alt="Two Wheeler" class="w-full h-64 object-cover group-hover:scale-110 transition duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
+                    <div class="absolute bottom-4 left-4 text-white">
+                        <h3 class="font-bold">Quick Delivery</h3>
+                        <p class="text-xs">Two-wheelers</p>
+                    </div>
+                </div>
+                
+                <div class="relative overflow-hidden rounded-2xl group">
+                    <img src="https://images.unsplash.com/photo-1625937286074-9ca519d5d9df?w=400&h=400&fit=crop" alt="Three Wheeler" class="w-full h-64 object-cover group-hover:scale-110 transition duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
+                    <div class="absolute bottom-4 left-4 text-white">
+                        <h3 class="font-bold">Local Transport</h3>
+                        <p class="text-xs">Three-wheelers</p>
+                    </div>
+                </div>
+                
+                <div class="relative overflow-hidden rounded-2xl group">
+                    <img src="https://images.unsplash.com/photo-1494412519320-aa613dfb7738?w=400&h=400&fit=crop" alt="Verified Driver" class="w-full h-64 object-cover group-hover:scale-110 transition duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
+                    <div class="absolute bottom-4 left-4 text-white">
+                        <h3 class="font-bold">Professional Drivers</h3>
+                        <p class="text-xs">KYC Verified</p>
+                    </div>
+                </div>
+                
+                <div class="relative overflow-hidden rounded-2xl group">
+                    <img src="https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?w=400&h=400&fit=crop" alt="Pickup Truck" class="w-full h-64 object-cover group-hover:scale-110 transition duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60"></div>
+                    <div class="absolute bottom-4 left-4 text-white">
+                        <h3 class="font-bold">Mini Pickups</h3>
+                        <p class="text-xs">Perfect for homes</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-20 px-4 bg-gradient-to-b from-gray-50 to-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                    Real User <span class="text-blue-600">Experiences</span>
+                </h2>
+                <p class="text-xl text-gray-600">
+                    See what our customers and drivers say
+                </p>
+            </div>
+            
+            <!-- Swiper Testimonial Carousel -->
+            <div class="swiper testimonialSwiper">
+                <div class="swiper-wrapper pb-12">
+                    <!-- Testimonial 1 -->
+                    <div class="swiper-slide">
+                        <div class="bg-white rounded-2xl shadow-lg p-8">
+                            <div class="flex items-center mb-6">
+                                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop" alt="Amit Sharma" class="w-16 h-16 rounded-full object-cover mr-4 border-4 border-blue-100">
+                                <div>
+                                    <h4 class="text-xl font-bold text-gray-900">Amit Sharma</h4>
+                                    <p class="text-gray-600">Delhi</p>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                            </div>
+                            <p class="text-gray-700 text-lg italic">
+                                "Sent urgent documents using a two-wheeler. Delivered in 45 minutes. Excellent service!"
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Testimonial 2 -->
+                    <div class="swiper-slide">
+                        <div class="bg-white rounded-2xl shadow-lg p-8">
+                            <div class="flex items-center mb-6">
+                                <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop" alt="Ravi Patel" class="w-16 h-16 rounded-full object-cover mr-4 border-4 border-blue-100">
+                                <div>
+                                    <h4 class="text-xl font-bold text-gray-900">Ravi Patel</h4>
+                                    <p class="text-gray-600">Ahmedabad</p>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                            </div>
+                            <p class="text-gray-700 text-lg italic">
+                                "As a truck driver, DoorMan gives me steady work without agents. Fair payment every time."
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Testimonial 3 -->
+                    <div class="swiper-slide">
+                        <div class="bg-white rounded-2xl shadow-lg p-8">
+                            <div class="flex items-center mb-6">
+                                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop" alt="Neha Verma" class="w-16 h-16 rounded-full object-cover mr-4 border-4 border-blue-100">
+                                <div>
+                                    <h4 class="text-xl font-bold text-gray-900">Neha Verma</h4>
+                                    <p class="text-gray-600">Jaipur</p>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                                <i class="fas fa-star text-yellow-400"></i>
+                            </div>
+                            <p class="text-gray-700 text-lg italic">
+                                "Used a three-wheeler for shop stock delivery. Very smooth process and reliable drivers."
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="swiper-pagination"></div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Safety & Trust Section -->
+    <section class="py-20 px-4 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                    Safety & <span class="text-blue-600">Trust</span>
+                </h2>
+                <p class="text-xl text-gray-600 mb-8">
+                    Your goods. Our responsibility.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-5 gap-8 mb-16">
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-lock text-blue-600 text-3xl"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-900 mb-2">Secure Platform</h3>
+                    <p class="text-sm text-gray-600">End-to-end encryption</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-tag text-blue-600 text-3xl"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-900 mb-2">Transparent Pricing</h3>
+                    <p class="text-sm text-gray-600">No hidden charges</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-map-marker-alt text-blue-600 text-3xl"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-900 mb-2">Live Tracking</h3>
+                    <p class="text-sm text-gray-600">Real-time updates</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-headset text-blue-600 text-3xl"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-900 mb-2">Customer Support</h3>
+                    <p class="text-sm text-gray-600">24/7 assistance</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-hand-holding-heart text-blue-600 text-3xl"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-900 mb-2">Safe Handling</h3>
+                    <p class="text-sm text-gray-600">Professional care</p>
+                </div>
+            </div>
+            
+            <!-- Trust Badges Section -->
+            <div class="mt-16 grid md:grid-cols-4 gap-8 bg-gradient-to-br from-blue-50 to-white p-12 rounded-3xl">
+                <div class="text-center">
+                    <div class="w-24 h-24 mx-auto mb-4 relative">
+                        <img src="https://images.unsplash.com/photo-1633409361618-c73427e4e206?w=200&h=200&fit=crop" alt="ISO Certified" class="rounded-full shadow-lg">
+                        <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-check text-white"></i>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-gray-900 mb-1">ISO Certified</h3>
+                    <p class="text-sm text-gray-600">Quality Standards</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-24 h-24 mx-auto mb-4 relative">
+                        <img src="https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=200&h=200&fit=crop" alt="Data Secure" class="rounded-full shadow-lg">
+                        <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-shield-alt text-white"></i>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-gray-900 mb-1">Data Secure</h3>
+                    <p class="text-sm text-gray-600">256-bit Encryption</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-24 h-24 mx-auto mb-4 relative">
+                        <img src="https://images.unsplash.com/photo-1551836022-4c4c79ecde51?w=200&h=200&fit=crop" alt="Award Winning" class="rounded-full shadow-lg">
+                        <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-trophy text-white"></i>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-gray-900 mb-1">Award Winning</h3>
+                    <p class="text-sm text-gray-600">Best Logistics 2025</p>
+                </div>
+                
+                <div class="text-center">
+                    <div class="w-24 h-24 mx-auto mb-4 relative">
+                        <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=200&h=200&fit=crop" alt="Customer Support" class="rounded-full shadow-lg">
+                        <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-headset text-white"></i>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-gray-900 mb-1">24/7 Support</h3>
+                    <p class="text-sm text-gray-600">Always Available</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Launch Offer Section -->
+    <section class="py-20 px-4 bg-gradient-to-br from-orange-500 to-orange-600 text-white">
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="inline-block bg-red-600 text-white px-6 py-2 rounded-full font-bold mb-6 animate-pulse">
+                🔥 LIMITED TIME OFFER
+            </div>
+            <h2 class="text-4xl md:text-5xl font-bold mb-8">
+                Launch Offer - Special Rates!
+            </h2>
+            
+            <div class="grid md:grid-cols-3 gap-8 mb-10">
+                <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-xl p-6">
+                    <i class="fas fa-percent text-4xl mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">Special Rates</h3>
+                    <p>First booking discount</p>
+                </div>
+                
+                <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-xl p-6">
+                    <i class="fas fa-crown text-4xl mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">Priority Assignment</h3>
+                    <p>Top-rated drivers</p>
+                </div>
+                
+                <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-xl p-6">
+                    <i class="fas fa-gift text-4xl mb-4"></i>
+                    <h3 class="text-xl font-bold mb-2">Zero Fee</h3>
+                    <p>For driver registration</p>
+                </div>
+            </div>
+            
+            <button class="bg-white text-orange-600 px-10 py-4 rounded-full font-bold text-lg hover:scale-105 transition shadow-2xl">
+                Claim Your Offer Now
+            </button>
+        </div>
+    </section>
+    
+    <!-- Final CTA Section -->
+    <section class="py-20 px-4 bg-gradient-to-br from-blue-600 to-blue-800 text-white">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-4xl md:text-5xl font-bold mb-6">
+                Ready to Get Started?
+            </h2>
+            <p class="text-xl mb-10 text-blue-100">
+                Join thousands using DoorMan for hassle-free logistics
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button class="btn-primary text-white px-10 py-4 rounded-full font-bold text-lg">
+                    <i class="fas fa-box mr-2"></i>Book a Vehicle
+                </button>
+                <button class="bg-white text-blue-600 px-10 py-4 rounded-full font-bold text-lg hover:scale-105 transition">
+                    <i class="fas fa-user-plus mr-2"></i>Register as Driver
+                </button>
+                <button class="btn-secondary text-white px-10 py-4 rounded-full font-bold text-lg">
+                    <i class="fas fa-handshake mr-2"></i>Partner With Us
+                </button>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Download App CTA Section -->
+    <section class="py-20 px-4 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden">
+        <div class="max-w-7xl mx-auto relative z-10">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <!-- Left: Images -->
+                <div class="relative hidden md:block">
+                    <div class="flex gap-4 items-center justify-center">
+                        <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=300&h=600&fit=crop" alt="Mobile App" class="rounded-3xl shadow-2xl transform hover:scale-105 transition duration-500">
+                        <img src="https://images.unsplash.com/photo-1551650975-87deedd944c3?w=300&h=600&fit=crop" alt="Mobile App Dashboard" class="rounded-3xl shadow-2xl transform translate-y-8 hover:scale-105 transition duration-500">
+                    </div>
+                </div>
+                
+                <!-- Right: Content -->
+                <div>
+                    <h2 class="text-4xl md:text-5xl font-bold mb-6">
+                        Download DoorMan App <span class="text-blue-400">Today</span>
+                    </h2>
+                    <p class="text-xl text-gray-300 mb-8">
+                        Get the best logistics experience on your mobile. Available for both Android and iOS.
+                    </p>
+                    
+                    <div class="space-y-4 mb-8">
+                        <div class="flex items-start">
+                            <i class="fas fa-check-circle text-green-400 text-2xl mr-4 mt-1"></i>
+                            <div>
+                                <h4 class="font-bold text-lg mb-1">Book in Seconds</h4>
+                                <p class="text-gray-400">Quick and easy vehicle booking</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fas fa-check-circle text-green-400 text-2xl mr-4 mt-1"></i>
+                            <div>
+                                <h4 class="font-bold text-lg mb-1">Track Live</h4>
+                                <p class="text-gray-400">Real-time GPS tracking of your delivery</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fas fa-check-circle text-green-400 text-2xl mr-4 mt-1"></i>
+                            <div>
+                                <h4 class="font-bold text-lg mb-1">Secure Payments</h4>
+                                <p class="text-gray-400">Multiple payment options available</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button class="bg-white text-gray-900 px-8 py-4 rounded-xl font-bold flex items-center justify-center hover:scale-105 transition shadow-xl">
+                            <i class="fab fa-google-play text-3xl mr-3 text-green-600"></i>
+                            <div class="text-left">
+                                <div class="text-xs text-gray-600">GET IT ON</div>
+                                <div class="text-lg">Google Play</div>
+                            </div>
+                        </button>
+                        <button class="bg-white text-gray-900 px-8 py-4 rounded-xl font-bold flex items-center justify-center hover:scale-105 transition shadow-xl">
+                            <i class="fab fa-apple text-3xl mr-3 text-gray-800"></i>
+                            <div class="text-left">
+                                <div class="text-xs text-gray-600">DOWNLOAD ON</div>
+                                <div class="text-lg">App Store</div>
+                            </div>
+                        </button>
+                    </div>
+                    
+                    <div class="mt-8 flex items-center">
+                        <div class="flex -space-x-3">
+                            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop" alt="User" class="w-10 h-10 rounded-full border-2 border-gray-900">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop" alt="User" class="w-10 h-10 rounded-full border-2 border-gray-900">
+                            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop" alt="User" class="w-10 h-10 rounded-full border-2 border-gray-900">
+                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" alt="User" class="w-10 h-10 rounded-full border-2 border-gray-900">
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-yellow-400 text-sm">★★★★★</div>
+                            <div class="text-gray-400 text-sm">10,000+ happy users</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Background Decorative Elements -->
+        <div class="absolute top-0 left-0 w-96 h-96 bg-blue-600 rounded-full opacity-10 blur-3xl"></div>
+        <div class="absolute bottom-0 right-0 w-96 h-96 bg-orange-600 rounded-full opacity-10 blur-3xl"></div>
+    </section>
+    
+    <!-- Contact Form Section -->
+    <section id="contact" class="py-20 px-4 bg-gray-50">
+        <div class="max-w-2xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                    Get in <span class="text-blue-600">Touch</span>
+                </h2>
+                <p class="text-xl text-gray-600">
+                    Our team will contact you shortly
+                </p>
+            </div>
+            
+            <form class="bg-white rounded-2xl shadow-xl p-8 space-y-6">
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Name *</label>
+                    <div class="relative">
+                        <i class="fas fa-user absolute left-4 top-4 text-gray-400"></i>
+                        <input type="text" class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter your name" required>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Mobile Number *</label>
+                    <div class="relative">
+                        <i class="fas fa-phone absolute left-4 top-4 text-gray-400"></i>
+                        <input type="tel" class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter your mobile number" required>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">City *</label>
+                    <div class="relative">
+                        <i class="fas fa-map-marker-alt absolute left-4 top-4 text-gray-400"></i>
+                        <input type="text" class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter your city" required>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Service Required *</label>
+                    <div class="relative">
+                        <i class="fas fa-briefcase absolute left-4 top-4 text-gray-400"></i>
+                        <select class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none" required>
+                            <option value="">Select service</option>
+                            <option value="send-goods">Send Goods</option>
+                            <option value="driver-registration">Driver Registration</option>
+                            <option value="fleet-partner">Fleet Partner</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-primary text-white w-full py-4 rounded-lg font-bold text-lg">
+                    Submit Request
+                </button>
+                
+                <p class="text-center text-sm text-gray-500">
+                    <i class="fas fa-shield-alt mr-2"></i>Your information is safe and secure with us
+                </p>
+            </form>
+        </div>
+    </section>
+    
+    <!-- FAQ Section -->
+    <section class="py-20 px-4 bg-white">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+                    Frequently Asked <span class="text-blue-600">Questions</span>
+                </h2>
+            </div>
+            
+            <div class="space-y-4">
+                <!-- FAQ 1 -->
+                <div class="bg-gray-50 rounded-lg overflow-hidden">
+                    <button class="faq-btn w-full text-left px-6 py-5 font-semibold text-lg flex items-center justify-between hover:bg-gray-100 transition">
+                        <span>Do you provide two-wheeler and three-wheeler delivery?</span>
+                        <i class="fas fa-chevron-down text-blue-600"></i>
+                    </button>
+                    <div class="accordion-content px-6 pb-5">
+                        <p class="text-gray-600">Yes, we provide both two-wheeler and three-wheeler delivery services for small and medium local deliveries. Perfect for documents, parcels, and shop goods.</p>
+                    </div>
+                </div>
+                
+                <!-- FAQ 2 -->
+                <div class="bg-gray-50 rounded-lg overflow-hidden">
+                    <button class="faq-btn w-full text-left px-6 py-5 font-semibold text-lg flex items-center justify-between hover:bg-gray-100 transition">
+                        <span>Are drivers verified?</span>
+                        <i class="fas fa-chevron-down text-blue-600"></i>
+                    </button>
+                    <div class="accordion-content px-6 pb-5">
+                        <p class="text-gray-600">Yes, all drivers go through complete KYC verification, document checking, and background verification. We ensure only trusted professionals handle your deliveries.</p>
+                    </div>
+                </div>
+                
+                <!-- FAQ 3 -->
+                <div class="bg-gray-50 rounded-lg overflow-hidden">
+                    <button class="faq-btn w-full text-left px-6 py-5 font-semibold text-lg flex items-center justify-between hover:bg-gray-100 transition">
+                        <span>Can I track my delivery?</span>
+                        <i class="fas fa-chevron-down text-blue-600"></i>
+                    </button>
+                    <div class="accordion-content px-6 pb-5">
+                        <p class="text-gray-600">Yes, real-time tracking is available for all deliveries. You can monitor your shipment from pickup to delivery through our app or web platform.</p>
+                    </div>
+                </div>
+                
+                <!-- FAQ 4 -->
+                <div class="bg-gray-50 rounded-lg overflow-hidden">
+                    <button class="faq-btn w-full text-left px-6 py-5 font-semibold text-lg flex items-center justify-between hover:bg-gray-100 transition">
+                        <span>Do you offer employment to drivers?</span>
+                        <i class="fas fa-chevron-down text-blue-600"></i>
+                    </button>
+                    <div class="accordion-content px-6 pb-5">
+                        <p class="text-gray-600">Yes, DoorMan supports driver income growth with regular bookings, fair earnings, and no middlemen. Drivers from two-wheelers to heavy trucks are welcome to join our platform.</p>
+                    </div>
+                </div>
+                
+                <!-- FAQ 5 -->
+                <div class="bg-gray-50 rounded-lg overflow-hidden">
+                    <button class="faq-btn w-full text-left px-6 py-5 font-semibold text-lg flex items-center justify-between hover:bg-gray-100 transition">
+                        <span>What vehicles do you have available?</span>
+                        <i class="fas fa-chevron-down text-blue-600"></i>
+                    </button>
+                    <div class="accordion-content px-6 pb-5">
+                        <p class="text-gray-600">We offer two-wheelers, three-wheelers, mini pickups, and trucks ranging from 10 ton to 25 ton capacity. Choose the right vehicle based on your delivery needs.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <!-- About -->
+                <div>
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-truck text-3xl text-blue-500 mr-2"></i>
+                        <span class="text-2xl font-bold">DoorMan</span>
+                    </div>
+                    <p class="text-gray-400">
+                        Door-to-Door Logistics & Parcel Transfer Platform
+                    </p>
+                </div>
+                
+                <!-- Quick Links -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#services" class="text-gray-400 hover:text-blue-500 transition">Services</a></li>
+                        <li><a href="#vehicles" class="text-gray-400 hover:text-blue-500 transition">Vehicles</a></li>
+                        <li><a href="#how-it-works" class="text-gray-400 hover:text-blue-500 transition">How It Works</a></li>
+                        <li><a href="#contact" class="text-gray-400 hover:text-blue-500 transition">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <!-- For Partners -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4">For Partners</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-blue-500 transition">Register as Driver</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-blue-500 transition">Fleet Partnership</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-blue-500 transition">Business Solutions</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Contact -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Contact Us</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center text-gray-400">
+                            <i class="fas fa-envelope mr-3"></i>
+                            support@doorman.in
+                        </li>
+                        <li class="flex items-center text-gray-400">
+                            <i class="fas fa-phone mr-3"></i>
+                            +91 XXXXX XXXXX
+                        </li>
+                        <li class="flex items-center text-gray-400">
+                            <i class="fas fa-globe mr-3"></i>
+                            www.doorman.in
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8">
+                <p class="text-center text-gray-400 text-sm mb-4">
+                    © 2026 <strong>DoorMan™</strong>. All Rights Reserved.
+                </p>
+                <p class="text-center text-gray-500 text-xs">
+                    ⚠️ Service availability may vary by location. Delivery time depends on distance, load, and traffic. DoorMan is a logistics facilitator, not a goods manufacturer.
+                </p>
+                <p class="text-center text-gray-500 text-xs mt-2">
+                    Unauthorized copying or reproduction is prohibited. DoorMan™ is a registered brand.
+                </p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        // Loading Screen
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.getElementById('loading-screen').style.opacity = '0';
+                setTimeout(function() {
+                    document.getElementById('loading-screen').style.display = 'none';
+                }, 500);
+            }, 2000);
+        });
+        
+        // Navbar Scroll Effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            const navbarLogo = document.querySelector('.navbar-logo');
+            const navbarLinks = document.querySelectorAll('.navbar-link');
+            
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+                navbarLogo.classList.remove('text-white');
+                navbarLogo.classList.add('text-blue-600');
+                navbarLinks.forEach(link => {
+                    link.classList.remove('text-white', 'hover:text-blue-200');
+                    link.classList.add('text-gray-700', 'hover:text-blue-600');
+                });
+            } else {
+                navbar.classList.remove('scrolled');
+                navbarLogo.classList.remove('text-blue-600');
+                navbarLogo.classList.add('text-white');
+                navbarLinks.forEach(link => {
+                    link.classList.remove('text-gray-700', 'hover:text-blue-600');
+                    link.classList.add('text-white', 'hover:text-blue-200');
+                });
+            }
+        });
+        
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.querySelector('.mobile-menu');
+        const closeMenu = document.getElementById('close-menu');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+        
+        mobileMenuBtn.addEventListener('click', function() {
+            mobileMenu.classList.add('active');
+        });
+        
+        closeMenu.addEventListener('click', function() {
+            mobileMenu.classList.remove('active');
+        });
+        
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                mobileMenu.classList.remove('active');
+            });
+        });
+        
+        // Vehicle Swiper
+        const vehicleSwiper = new Swiper('.vehicleSwiper', {
+            slidesPerView: 1,
+            spaceBetween: 30,
+            loop: true,
+            autoplay: {
+                delay: 3000,
+                disableOnInteraction: false,
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+            breakpoints: {
+                640: {
+                    slidesPerView: 2,
+                },
+                1024: {
+                    slidesPerView: 3,
+                },
+            },
+        });
+        
+        // Testimonial Swiper
+        const testimonialSwiper = new Swiper('.testimonialSwiper', {
+            slidesPerView: 1,
+            spaceBetween: 30,
+            loop: true,
+            autoplay: {
+                delay: 4000,
+                disableOnInteraction: false,
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            breakpoints: {
+                768: {
+                    slidesPerView: 2,
+                },
+                1024: {
+                    slidesPerView: 3,
+                },
+            },
+        });
+        
+        // FAQ Accordion
+        const faqButtons = document.querySelectorAll('.faq-btn');
+        
+        faqButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const content = this.nextElementSibling;
+                const icon = this.querySelector('i');
+                
+                // Close all other accordions
+                document.querySelectorAll('.accordion-content').forEach(item => {
+                    if (item !== content) {
+                        item.classList.remove('active');
+                    }
+                });
+                
+                document.querySelectorAll('.faq-btn i').forEach(i => {
+                    if (i !== icon) {
+                        i.classList.remove('fa-chevron-up');
+                        i.classList.add('fa-chevron-down');
+                    }
+                });
+                
+                // Toggle current accordion
+                content.classList.toggle('active');
+                
+                if (content.classList.contains('active')) {
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-up');
+                } else {
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
+                }
+            });
+        });
+        
+        // Smooth Scroll for Anchor Links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

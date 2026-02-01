@@ -58,6 +58,141 @@
             margin-top: 20px;
             animation: pulse 1.5s ease-in-out infinite;
         }
+
+              /* Loading Screen */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+        
+        .loader-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+        }
+        
+        .loader-road {
+            position: absolute;
+            bottom: 40px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: repeating-linear-gradient(
+                90deg,
+                white 0px,
+                white 20px,
+                transparent 20px,
+                transparent 40px
+            );
+            animation: road-move 1s linear infinite;
+        }
+        
+        @keyframes road-move {
+            0% { background-position: 0 0; }
+            100% { background-position: 40px 0; }
+        }
+        
+        .loader-vehicle {
+            position: absolute;
+            font-size: 3rem;
+            color: white;
+            animation: vehicle-move 2s ease-in-out infinite;
+        }
+        
+        .vehicle-1 {
+            top: 20px;
+            left: 20px;
+            animation-delay: 0s;
+        }
+        
+        .vehicle-2 {
+            top: 20px;
+            right: 20px;
+            animation-delay: 0.3s;
+        }
+        
+        .vehicle-3 {
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation-delay: 0.6s;
+        }
+        
+        @keyframes vehicle-move {
+            0%, 100% { 
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            50% { 
+                transform: translateY(-15px) scale(1.1);
+                opacity: 0.8;
+            }
+        }
+        
+        .loader-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1.5s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-top: 40px;
+            letter-spacing: 2px;
+        }
+        
+        .loading-subtext {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            margin-top: 10px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .loading-dots {
+            display: inline-block;
+        }
+        
+        .loading-dots span {
+            animation: dots 1.5s infinite;
+            opacity: 0;
+        }
+        
+        .loading-dots span:nth-child(1) { animation-delay: 0s; }
+        .loading-dots span:nth-child(2) { animation-delay: 0.3s; }
+        .loading-dots span:nth-child(3) { animation-delay: 0.6s; }
+        
+        @keyframes dots {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
         
         @keyframes pulse {
             0%, 100% { opacity: 1; }
@@ -194,11 +329,24 @@
 </head>
 <body class="bg-gray-50">
     
-    <!-- Loading Screen -->
+     <!-- Loading Screen -->
     <div id="loading-screen">
-        <div class="loader"></div>
+        <div class="loader-container">
+            <!-- Animated Vehicles -->
+            <i class="fas fa-truck loader-vehicle vehicle-1"></i>
+            <i class="fas fa-motorcycle loader-vehicle vehicle-2"></i>
+            <i class="fas fa-shuttle-van loader-vehicle vehicle-3"></i>
+            
+            <!-- Spinning Circle -->
+            <div class="loader-circle"></div>
+            
+            <!-- Animated Road -->
+            <div class="loader-road"></div>
+        </div>
         <div class="loading-text">DoorMan</div>
-        <p class="text-white text-sm mt-2">Loading your logistics solution...</p>
+        <p class="loading-subtext">
+            Loading your logistics solution<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span>
+        </p>
     </div>
     
     <!-- Navbar -->
@@ -1323,42 +1471,6 @@
         </div>
     </section>
     
-    <!-- Launch Offer Section -->
-    <section class="py-20 px-4 bg-gradient-to-br from-orange-500 to-orange-600 text-white">
-        <div class="max-w-4xl mx-auto text-center">
-            <div class="inline-block bg-red-600 text-white px-6 py-2 rounded-full font-bold mb-6 animate-pulse">
-                🔥 LIMITED TIME OFFER
-            </div>
-            <h2 class="text-4xl md:text-5xl font-bold mb-8">
-                Launch Offer - Special Rates!
-            </h2>
-            
-            <div class="grid md:grid-cols-3 gap-8 mb-10">
-                <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-xl p-6">
-                    <i class="fas fa-percent text-4xl mb-4"></i>
-                    <h3 class="text-xl font-bold mb-2">Special Rates</h3>
-                    <p>First booking discount</p>
-                </div>
-                
-                <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-xl p-6">
-                    <i class="fas fa-crown text-4xl mb-4"></i>
-                    <h3 class="text-xl font-bold mb-2">Priority Assignment</h3>
-                    <p>Top-rated drivers</p>
-                </div>
-                
-                <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-xl p-6">
-                    <i class="fas fa-gift text-4xl mb-4"></i>
-                    <h3 class="text-xl font-bold mb-2">Zero Fee</h3>
-                    <p>For driver registration</p>
-                </div>
-            </div>
-            
-            <button class="bg-white text-orange-600 px-10 py-4 rounded-full font-bold text-lg hover:scale-105 transition shadow-2xl">
-                Claim Your Offer Now
-            </button>
-        </div>
-    </section>
-    
     <!-- Final CTA Section -->
     <section class="py-20 px-4 bg-gradient-to-br from-blue-600 to-blue-800 text-white">
         <div class="max-w-4xl mx-auto text-center">
@@ -1381,89 +1493,6 @@
                 </button>
             </div>
         </div>
-    </section>
-    
-    <!-- Download App CTA Section -->
-    <section class="py-20 px-4 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden">
-        <div class="max-w-7xl mx-auto relative z-10">
-            <div class="grid md:grid-cols-2 gap-12 items-center">
-                <!-- Left: Images -->
-                <div class="relative hidden md:block">
-                    <div class="flex gap-4 items-center justify-center">
-                        <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=300&h=600&fit=crop" alt="Mobile App" class="rounded-3xl shadow-2xl transform hover:scale-105 transition duration-500">
-                        <img src="https://images.unsplash.com/photo-1551650975-87deedd944c3?w=300&h=600&fit=crop" alt="Mobile App Dashboard" class="rounded-3xl shadow-2xl transform translate-y-8 hover:scale-105 transition duration-500">
-                    </div>
-                </div>
-                
-                <!-- Right: Content -->
-                <div>
-                    <h2 class="text-4xl md:text-5xl font-bold mb-6">
-                        Download DoorMan App <span class="text-blue-400">Today</span>
-                    </h2>
-                    <p class="text-xl text-gray-300 mb-8">
-                        Get the best logistics experience on your mobile. Available for both Android and iOS.
-                    </p>
-                    
-                    <div class="space-y-4 mb-8">
-                        <div class="flex items-start">
-                            <i class="fas fa-check-circle text-green-400 text-2xl mr-4 mt-1"></i>
-                            <div>
-                                <h4 class="font-bold text-lg mb-1">Book in Seconds</h4>
-                                <p class="text-gray-400">Quick and easy vehicle booking</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start">
-                            <i class="fas fa-check-circle text-green-400 text-2xl mr-4 mt-1"></i>
-                            <div>
-                                <h4 class="font-bold text-lg mb-1">Track Live</h4>
-                                <p class="text-gray-400">Real-time GPS tracking of your delivery</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start">
-                            <i class="fas fa-check-circle text-green-400 text-2xl mr-4 mt-1"></i>
-                            <div>
-                                <h4 class="font-bold text-lg mb-1">Secure Payments</h4>
-                                <p class="text-gray-400">Multiple payment options available</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <button class="bg-white text-gray-900 px-8 py-4 rounded-xl font-bold flex items-center justify-center hover:scale-105 transition shadow-xl">
-                            <i class="fab fa-google-play text-3xl mr-3 text-green-600"></i>
-                            <div class="text-left">
-                                <div class="text-xs text-gray-600">GET IT ON</div>
-                                <div class="text-lg">Google Play</div>
-                            </div>
-                        </button>
-                        <button class="bg-white text-gray-900 px-8 py-4 rounded-xl font-bold flex items-center justify-center hover:scale-105 transition shadow-xl">
-                            <i class="fab fa-apple text-3xl mr-3 text-gray-800"></i>
-                            <div class="text-left">
-                                <div class="text-xs text-gray-600">DOWNLOAD ON</div>
-                                <div class="text-lg">App Store</div>
-                            </div>
-                        </button>
-                    </div>
-                    
-                    <div class="mt-8 flex items-center">
-                        <div class="flex -space-x-3">
-                            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop" alt="User" class="w-10 h-10 rounded-full border-2 border-gray-900">
-                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop" alt="User" class="w-10 h-10 rounded-full border-2 border-gray-900">
-                            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop" alt="User" class="w-10 h-10 rounded-full border-2 border-gray-900">
-                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop" alt="User" class="w-10 h-10 rounded-full border-2 border-gray-900">
-                        </div>
-                        <div class="ml-4">
-                            <div class="text-yellow-400 text-sm">★★★★★</div>
-                            <div class="text-gray-400 text-sm">10,000+ happy users</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Background Decorative Elements -->
-        <div class="absolute top-0 left-0 w-96 h-96 bg-blue-600 rounded-full opacity-10 blur-3xl"></div>
-        <div class="absolute bottom-0 right-0 w-96 h-96 bg-orange-600 rounded-full opacity-10 blur-3xl"></div>
     </section>
     
     <!-- Contact Form Section -->
